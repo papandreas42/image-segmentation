@@ -6,7 +6,7 @@
 ### -- end of LSF options --
 
 # Load environment variables
-source ./.env
+source ./.env_var
 
 # Create job_out if it is not present
 if [[ ! -d ${REPO}/job_out ]]; then
