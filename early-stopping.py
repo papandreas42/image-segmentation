@@ -693,7 +693,7 @@ def get_args():
 ## Change in args
 # Bypass `get_args()` by populating the args object manually with values that are relevant to our application.
 class ArgsBypass:
-  epochs  = 5
+  epochs  = 500
   batch_size  = 1
   lr = 1e-5
   load = False
