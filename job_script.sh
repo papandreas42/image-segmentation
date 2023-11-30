@@ -51,3 +51,6 @@ fi
 
 # run training
 python3 early-stopping.py
+
+mv *gpu_* ${REPO}/job_out
+mv checkpoints ${REPO}/runs/train/${date}
