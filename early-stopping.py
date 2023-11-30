@@ -467,20 +467,41 @@ def train_model(
         dataset = BasicDataset(dir_img, dir_mask, img_scale)
 
     # 2. Split into train / validation partitions
-    n_val = int(len(dataset) * val_percent)
-    n_train = len(dataset) - n_val
-    train_set, val_set = random_split(dataset, [n_train, n_val], generator=torch.Generator().manual_seed(0))
+    # n_val = int(len(dataset) * val_percent)
+    # n_train = len(dataset) - n_val
+    # train_set, val_set = random_split(dataset, [n_train, n_val], generator=torch.Generator().manual_seed(0))
+
+    # Smaller dataset // Andreas
+    n_val = 100
+    n_train = 5
+    n_total = n_val + n_train
+    smaller_set, _ = random_split(dataset, [n_total, int(len(dataset))-n_total], generator=torch.Generator().manual_seed(0))
+    train_set, val_set = random_split(smaller_set, [n_train, n_val], generator=torch.Generator().manual_seed(0))
+    # Smaller dataset // Andreas
 
     # 3. Create data loaders
     loader_args = dict(batch_size=batch_size, num_workers=os.cpu_count(), pin_memory=True)
     train_loader = DataLoader(train_set, shuffle=True, **loader_args)
     val_loader = DataLoader(val_set, shuffle=False, drop_last=True, **loader_args)
 
+    # Early stopping // Andreas
+    # Params
+    patience = 6
+    max_epochs = 50
+
+    validation_dices = []
+    # Early stopping // Andreas
+
     # (Initialize logging)
-    experiment = wandb.init(project='U-Net', resume='allow', anonymous='must')
+    # Run name // Andreas
+    wandb_run_name = "Early Stopping n_train_" + str(n_train) + " n_val_" + str(n_val)
+    experiment = wandb.init(project='U-Net', resume='allow', anonymous='must', name=wandb_run_name)
     experiment.config.update(
         dict(epochs=epochs, batch_size=batch_size, learning_rate=learning_rate,
-             val_percent=val_percent, save_checkpoint=save_checkpoint, img_scale=img_scale, amp=amp)
+             val_percent=val_percent, save_checkpoint=save_checkpoint, img_scale=img_scale, amp=amp,
+             early_stopping="Enabled",
+             early_stopping_patience=patience,
+             early_stopping_max_epochs=max_epochs)
     )
 
     logging.info(f'''Starting training:
@@ -561,6 +582,10 @@ def train_model(
                                 histograms['Gradients/' + tag] = wandb.Histogram(value.grad.data.cpu())
 
                         val_score = evaluate(model, val_loader, device, amp)
+
+                        # Early stopping // Andreas
+                        validation_dices.append(val_score)
+
                         scheduler.step(val_score)
 
                         logging.info('Validation Dice score: {}'.format(val_score))
@@ -579,6 +604,13 @@ def train_model(
                             })
                         except:
                             pass
+
+        # Early Stopping // Andreas
+        if (epoch > patience and max(validation_dices[-(patience+1):-1]) > validation_dices[-1]) or epoch == max_epochs:
+          logging.info("Early stopping triggered")
+          break
+
+
 
         if save_checkpoint:
             Path(dir_checkpoint).mkdir(parents=True, exist_ok=True)
