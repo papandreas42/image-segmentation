@@ -473,7 +473,7 @@ def train_model(
 
     # Smaller dataset // Andreas
     n_val = 100
-    n_train = int(os.environ.get("N_TRAIN", "default_value"))
+    n_train = int(os.environ.get("N_TRAIN"))
     n_total = n_val + n_train
     smaller_set, _ = random_split(dataset, [n_total, int(len(dataset))-n_total], generator=torch.Generator().manual_seed(0))
     train_set, val_set = random_split(smaller_set, [n_train, n_val], generator=torch.Generator().manual_seed(0))
