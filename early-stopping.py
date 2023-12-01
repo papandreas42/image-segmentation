@@ -501,7 +501,8 @@ def train_model(
              val_percent=val_percent, save_checkpoint=save_checkpoint, img_scale=img_scale, amp=amp,
              early_stopping="Enabled",
              early_stopping_patience=patience,
-             early_stopping_max_epochs=max_epochs)
+             early_stopping_max_epochs=max_epochs,
+             n_train=n_train)
     )
 
     logging.info(f'''Starting training:
