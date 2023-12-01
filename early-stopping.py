@@ -606,19 +606,25 @@ def train_model(
                         except:
                             pass
 
-        # Early Stopping // Andreas
-        if (epoch > patience and max(validation_dices[-(patience+1):-1]) > validation_dices[-1]) or epoch == max_epochs:
-          logging.info("Early stopping triggered")
-          break
-
-
-
         if save_checkpoint:
             Path(dir_checkpoint).mkdir(parents=True, exist_ok=True)
             state_dict = model.state_dict()
             state_dict['mask_values'] = dataset.mask_values
             torch.save(state_dict, str(dir_checkpoint / 'checkpoint_epoch{}.pth'.format(epoch)))
             logging.info(f'Checkpoint {epoch} saved!')
+
+        # Early Stopping // Andreas
+        if (epoch > patience and max(validation_dices[-(patience+1):-1]) > validation_dices[-1]) or epoch == max_epochs:
+            logging.info("Early stopping triggered")
+            try:
+                experiment.log({
+                    'best_epoch':validation_dices.index(max(validation_dices))+1,
+                    'best_validation_dice':max(validation_dices)
+                })
+            except:
+                pass
+            # Stop training after logging early stopping info
+            break
 
 
 def get_args():
