@@ -1,10 +1,12 @@
 import subprocess
+import os
 
 def set_n_train_in_var_file(n_train):
     with open('./.env_var', 'r') as file:
         # read a list of lines into data
         data = file.readlines()
-        data[2] = "export N_TRAIN=" + n_train + "\n"
+        data[2] = "export N_TRAIN=" + str(n_train) + "\n"
+        print(data)
 
     with open('./env_var', 'w') as file:
     # read a list of lines into data
@@ -13,7 +15,8 @@ def set_n_train_in_var_file(n_train):
 
 for i in range(1,5):
     set_n_train_in_var_file(i)
-    print(subprocess.run(["source",
-                          './.env_var'], shell=True))
-    print(subprocess.run(["echo",
-                          '$N_TRAIN'], shell=True))
+    print("NEW LOOP")
+    print(subprocess.run(["bsub",
+                          "<","./job_script.sh"], shell=True))
+
+
