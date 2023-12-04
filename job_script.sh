@@ -1,17 +1,18 @@
 #!/bin/sh 
 
-
 ### General options
 ### –- specify queue --
 #BSUB -q gpuv100
 ### -- set the job Name --
 #BSUB -J testjob
+### Avoiding the parallel job message
+#BSUB -R "span[hosts=1]"
 ### -- ask for number of cores (default: 1) --
 #BSUB -n 4
 ### -- Select the resources: 1 gpu in exclusive process mode --
 #BSUB -gpu "num=1:mode=exclusive_process"
 ### -- set walltime limit: hh:mm --  maximum 24 hours for GPU-queues right now
-#BSUB -W 00:21
+#BSUB -W 00:20
 # request 5GB of system-memory
 #BSUB -R "rusage[mem=5GB]"
 ### -- set the email address --
@@ -30,6 +31,9 @@
 
 # Load environment variables
 source ./.env_var
+export N_TRAIN=7
+echo "JOB_SCRIPT_NTRAIN IS $N_TRAIN"
+
 
 # Create job_out if it is not present
 if [[ ! -d ${REPO}/job_out ]]; then
@@ -37,7 +41,9 @@ if [[ ! -d ${REPO}/job_out ]]; then
 fi
 
 date=$(date +%Y%m%d_%H%M)
-mkdir ${REPO}/runs/train/${date}
+unix_timestamp=$(date +%s)
+
+mkdir ${REPO}/runs/train/${date}_${unix_timestamp}
 
 # Activate venv
 module load python3/3.10.12
@@ -53,4 +59,4 @@ fi
 python3 early-stopping.py
 
 mv *gpu_* ${REPO}/job_out
-mv checkpoints ${REPO}/runs/train/${date}
+mv checkpoints ${REPO}/runs/train/${date}_${unix_timestamp}

@@ -1,3 +1,6 @@
 .env
 training_dataset.zip
 training_dataset
+wandb
+runs
+job_out
