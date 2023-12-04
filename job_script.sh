@@ -29,9 +29,8 @@
 #BSUB -e gpu_%J.err
 # -- end of LSF options --
 
-# Load environment variables
+export N_TRAIN=10
 source ./.env_var
-export N_TRAIN=7
 echo "JOB_SCRIPT_NTRAIN IS $N_TRAIN"
 
 

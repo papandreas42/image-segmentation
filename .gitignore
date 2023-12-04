@@ -4,3 +4,4 @@ training_dataset
 wandb
 runs
 job_out
+.env_var

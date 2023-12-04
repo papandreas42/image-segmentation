@@ -584,9 +584,6 @@ def train_model(
 
                         val_score = evaluate(model, val_loader, device, amp)
 
-                        # Early stopping // Andreas
-                        validation_dices.append(val_score)
-
                         scheduler.step(val_score)
 
                         logging.info('Validation Dice score: {}'.format(val_score))
@@ -614,6 +611,7 @@ def train_model(
             logging.info(f'Checkpoint {epoch} saved!')
 
         # Early Stopping // Andreas
+        validation_dices.append(val_score)
         if (epoch > patience and max(validation_dices[-(patience+1):-1]) > validation_dices[-1]) or epoch == max_epochs:
             logging.info("Early stopping triggered")
             try:
