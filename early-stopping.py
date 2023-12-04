@@ -486,10 +486,10 @@ def train_model(
 
     # Early stopping // Andreas
     # Params
-    patience = 6
-    max_epochs = 50
+    patience = 15
 
     validation_dices = []
+    early_stopping_counter = 0
     # Early stopping // Andreas
 
     # (Initialize logging)
@@ -501,7 +501,6 @@ def train_model(
              val_percent=val_percent, save_checkpoint=save_checkpoint, img_scale=img_scale, amp=amp,
              early_stopping="Enabled",
              early_stopping_patience=patience,
-             early_stopping_max_epochs=max_epochs,
              n_train=n_train)
     )
 
@@ -612,18 +611,40 @@ def train_model(
 
         # Early Stopping // Andreas
         validation_dices.append(val_score)
-        if (epoch > patience and max(validation_dices[-(patience+1):-1]) > validation_dices[-1]) or epoch == max_epochs:
-            logging.info("Early stopping triggered")
-            try:
-                experiment.log({
-                    'best_epoch':validation_dices.index(max(validation_dices))+1,
-                    'best_validation_dice':max(validation_dices)
-                })
-            except:
-                pass
-            # Stop training after logging early stopping info
-            break
+        # if (epoch > patience and max(validation_dices[-(patience+1):-1]) > validation_dices[-1]) or epoch == max_epochs:
+        #     logging.info("Early stopping triggered")
+        #     try:
+        #         experiment.log({
+        #             'best_epoch':validation_dices.index(max(validation_dices))+1,
+        #             'best_validation_dice':max(validation_dices)
+        #         })
+        #     except:
+        #         pass
+        #     # Stop training after logging early stopping info
+        #     break
 
+        if epoch > patience:
+            # Check if the current validation dice is smaller than the max of the patience window
+            is_smaller = max(validation_dices[-(patience+1):-1]) > validation_dices[-1]
+            
+            if is_smaller:
+                early_stopping_counter += 1
+            else:
+                early_stopping_counter = 0
+
+            # If the counter is larger than the patience, stop training  
+            if early_stopping_counter >= patience:
+                logging.info("Early stopping triggered")
+                try:
+                    experiment.log({
+                        'best_epoch':validation_dices.index(max(validation_dices[-(patience+1):-1]))+1,
+                        'best_validation_dice':max(validation_dices[-(patience+1):-1])
+                    })
+                except:
+                    pass
+                # Stop training after logging early stopping info
+                break
+        # Early Stopping // Andreas
 
 def get_args():
     parser = argparse.ArgumentParser(description='Train the UNet on images and target masks')
@@ -698,7 +719,7 @@ def get_args():
 ## Change in args
 # Bypass `get_args()` by populating the args object manually with values that are relevant to our application.
 class ArgsBypass:
-  epochs  = 500
+  epochs  = 200
   batch_size  = 1
   lr = 1e-5
   load = False
