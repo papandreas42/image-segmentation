@@ -728,6 +728,7 @@ class ArgsBypass:
   amp = False
   bilinear = False
   classes = 3
+  save_checkpoint = False
   pass
 
 args = ArgsBypass()
@@ -766,7 +767,8 @@ try:
         device=device,
         img_scale=args.scale,
         val_percent=args.val / 100,
-        amp=args.amp
+        amp=args.amp,
+        save_checkpoint=args.save_checkpoint
     )
 except torch.cuda.OutOfMemoryError:
     logging.error('Detected OutOfMemoryError! '
