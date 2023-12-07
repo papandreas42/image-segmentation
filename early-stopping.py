@@ -457,6 +457,7 @@ def train_model(
         weight_decay: float = 1e-8,
         momentum: float = 0.999,
         gradient_clipping: float = 1.0,
+        early_stopping: bool = False
 ):
     # 1. Create dataset
     try:
@@ -623,7 +624,7 @@ def train_model(
         #     # Stop training after logging early stopping info
         #     break
 
-        if epoch > patience:
+        if early_stopping and epoch > patience:
             # Check if the current validation dice is smaller than the max of the patience window
             is_smaller = max(validation_dices[-(patience+1):-1]) > validation_dices[-1]
             
@@ -729,6 +730,7 @@ class ArgsBypass:
   bilinear = False
   classes = 3
   save_checkpoint = False
+  early_stopping = False
   pass
 
 args = ArgsBypass()
@@ -768,7 +770,8 @@ try:
         img_scale=args.scale,
         val_percent=args.val / 100,
         amp=args.amp,
-        save_checkpoint=args.save_checkpoint
+        save_checkpoint=args.save_checkpoint,
+        early_stopping=args.early_stopping
     )
 except torch.cuda.OutOfMemoryError:
     logging.error('Detected OutOfMemoryError! '
