@@ -1,0 +1,11 @@
+epochs: 8
+batch_size: 1
+lr: 1e-5
+load: false
+scale: 1
+val: 10.0
+amp: false
+bilinear: false
+classes: 3
+save_checkpoint: false
+early_stopping: false

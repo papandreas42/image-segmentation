@@ -55,7 +55,7 @@ if [[ $? -ne 0 ]]; then
 fi
 
 # run training
-python3 early-stopping.py
+python3 early-stopping.py --config ${REPO}/default_config.yaml
 
 mv *gpu_* ${REPO}/job_out
 mv checkpoints ${REPO}/runs/train/${date}_${unix_timestamp}

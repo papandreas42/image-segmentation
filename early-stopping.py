@@ -417,6 +417,7 @@ def evaluate(net, dataloader, device, amp):
 # !pip3 install wandb
 
 import argparse
+import yaml
 import logging
 import os
 import random
@@ -661,7 +662,17 @@ def get_args():
     parser.add_argument('--bilinear', action='store_true', default=False, help='Use bilinear upsampling')
     parser.add_argument('--classes', '-c', type=int, default=2, help='Number of classes')
 
-    return parser.parse_args()
+    parser.add_argument('--config', '-c', type=str, default='default_config.yaml', help='Config file (values overwrite CLI arguments)')
+
+    args = parser.parse_args()
+
+    if args.config:
+        with open(args.config) as f:
+            default_config = yaml.safe_load(f)
+            args = argparse.Namespace(**default_config, **vars(args))
+
+
+    return args
 
 
 # if __name__ == '__main__':
@@ -719,23 +730,23 @@ def get_args():
 
 ## Change in args
 # Bypass `get_args()` by populating the args object manually with values that are relevant to our application.
-class ArgsBypass:
-  epochs  = 200
-  batch_size  = 1
-  lr = 1e-5
-  load = False
-  scale = 1
-  val = 10.0
-  amp = False
-  bilinear = False
-  classes = 3
-  save_checkpoint = False
-  early_stopping = False
-  pass
+# class ArgsBypass:
+#   epochs  = 200
+#   batch_size  = 1
+#   lr = 1e-5
+#   load = False
+#   scale = 1
+#   val = 10.0
+#   amp = False
+#   bilinear = False
+#   classes = 3
+#   save_checkpoint = False
+#   early_stopping = False
+#   pass
 
-args = ArgsBypass()
+# args = ArgsBypass()
 
-# args = get_args()
+args = get_args()
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
