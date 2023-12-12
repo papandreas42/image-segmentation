@@ -654,13 +654,15 @@ def get_args():
     parser.add_argument('--batch-size', '-b', dest='batch_size', metavar='B', type=int, default=1, help='Batch size')
     parser.add_argument('--learning-rate', '-l', metavar='LR', type=float, default=1e-5,
                         help='Learning rate', dest='lr')
-    parser.add_argument('--load', '-f', type=str, default=False, help='Load model from a .pth file')
+    parser.add_argument('--load', '-f', type=bool, default=False, help='Load model from a .pth file')
     parser.add_argument('--scale', '-s', type=float, default=0.5, help='Downscaling factor of the images')
     parser.add_argument('--validation', '-v', dest='val', type=float, default=10.0,
                         help='Percent of the data that is used as validation (0-100)')
     parser.add_argument('--amp', action='store_true', default=False, help='Use mixed precision')
+    parser.add_argument('--classes', '-C', type=int, default=2, help='Number of classes')
     parser.add_argument('--bilinear', action='store_true', default=False, help='Use bilinear upsampling')
-    parser.add_argument('--classes', '-c', type=int, default=2, help='Number of classes')
+    parser.add_argument('--save-checkpoint', action='store_true', default=False, help='Save checkpoints')
+    parser.add_argument('--early-stopping', action='store_true', default=False, help='Enable early stopping')
 
     parser.add_argument('--config', '-c', type=str, default='default_config.yaml', help='Config file (values overwrite CLI arguments)')
 
@@ -669,8 +671,14 @@ def get_args():
     if args.config:
         with open(args.config) as f:
             default_config = yaml.safe_load(f)
-            args = argparse.Namespace(**default_config, **vars(args))
-
+        # Create a new dictionary that merges vars(args) and default_config
+        # If a key exists in both, the value from default_config is used
+        merged_config = {**vars(args), **default_config}
+        # Cast values to the types specified in the parser
+        for action in parser._actions:
+            if action.dest in merged_config and action.type is not None:
+                merged_config[action.dest] = action.type(merged_config[action.dest])
+        args = argparse.Namespace(**merged_config)
 
     return args
 
