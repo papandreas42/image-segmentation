@@ -1,6 +1,6 @@
-# Experiment README
+# Variation in training dataset size
 
-This folder contains the scripts necessary to run the variation in training dataset experiment.
+This folder contains the scripts necessary to run the variation in training dataset experiment on DTU's HPC cluster.
 
 ## Prerequisites
 
