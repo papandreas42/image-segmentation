@@ -35,19 +35,31 @@ echo "JOB_SCRIPT_NTRAIN IS $N_TRAIN"
 
 
 # Create job_out if it is not present
-if [[ ! -d ${REPO}/job_out ]]; then
-	mkdir ${REPO}/job_out
+if [[ ! -d ${REPO}/variation_in_training_dataset/job_out ]]; then
+	mkdir ${REPO}/variation_in_training_dataset/job_out
+fi
+
+if [[ ! -d ${REPO}/variation_in_training_dataset/runs ]]; then
+	mkdir ${REPO}/variation_in_training_dataset/runs
+fi
+
+if [[ ! -d ${REPO}/variation_in_training_dataset/runs/train ]]; then
+	mkdir ${REPO}/variation_in_training_dataset/runs/train
+fi
+
+if [[ ! -d ${REPO}/variation_in_training_dataset/runs/train ]]; then
+	mkdir ${REPO}/variation_in_training_dataset/checkpoints
 fi
 
 date=$(date +%Y%m%d_%H%M)
 unix_timestamp=$(date +%s)
 
-mkdir ${REPO}/runs/train/${date}_${unix_timestamp}
+mkdir ${REPO}/variation_in_training_dataset/runs/train/${date}_${unix_timestamp}
 
 # Activate venv
 module load python3/3.10.12
 module load cuda/12.1
-source ${REPO}/.env/bin/activate
+source ${REPO}/variation_in_training_dataset/.venv/bin/activate
 
 # Exit if previous command failed
 if [[ $? -ne 0 ]]; then
@@ -55,7 +67,6 @@ if [[ $? -ne 0 ]]; then
 fi
 
 # run training
-python3 early-stopping.py
+python3 ${REPO}/variation_in_training_dataset/variation_in_training_dataset_size.py
 
-mv *gpu_* ${REPO}/job_out
-mv checkpoints ${REPO}/runs/train/${date}_${unix_timestamp}
+mv *gpu_* ${REPO}/variation_in_training_dataset/job_out

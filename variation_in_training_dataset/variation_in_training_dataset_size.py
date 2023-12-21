@@ -7,7 +7,7 @@ import os
 from skimage.io import imread
 from skimage.transform import resize
 
-drive_path = 'training_dataset/'
+drive_path = '../training_dataset/'
 
 image_paths = sorted(glob.glob(drive_path + "data/*.tiff"))
 label_paths = sorted(glob.glob(drive_path + "labels/*.tif"))

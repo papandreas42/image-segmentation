@@ -1,0 +1,5 @@
+.env_var
+.venv
+job_out
+wandb
+runs
