@@ -1,4 +1,6 @@
 import os
+import glob
+from pathlib import Path
 from os.path import splitext
 
 def set_paths(drive_path) :
@@ -28,8 +30,8 @@ def rename_labels(label_paths,drive_path ):
         print(drive_path + "labels/" + id + ".tif")
         os.rename(path, drive_path + "labels/" + id + ".tif")
 
-drive_path = 'training_dataset/'
+drive_path = '../training_dataset/'
 image_paths, label_paths, dir_img, dir_mask, dir_checkpoint = set_paths(drive_path=drive_path)
 
-rename_images(image_paths = image_paths,drive_path = drive_path)
+rename_images(image_paths = image_paths,drive_path =drive_path)
 rename_labels(label_paths = label_paths,drive_path =drive_path)
